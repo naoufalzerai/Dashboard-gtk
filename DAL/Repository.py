@@ -1,0 +1,9 @@
+class Repository:
+    def get_all(self):
+        return ""
+    def add_new(self):
+        return ""
+    def delete(self):
+        return ""
+    def get(self):
+        return ""
