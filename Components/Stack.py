@@ -4,7 +4,7 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 
 def init_stack(stack: Gtk.Stack, config: list, builder: Gtk.Builder):

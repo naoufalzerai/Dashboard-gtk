@@ -17,7 +17,7 @@
               <object class="GtkStackSidebar" id="stack_bar">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="stack">stack1</property>
+                <property name="stack">main_stack</property>
               </object>
               <packing>
                 <property name="resize">False</property>
@@ -25,7 +25,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkStack" id="stack1">
+              <object class="GtkStack" id="main_stack">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
@@ -50,8 +50,8 @@
       <object class="GtkHeaderBar">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="title" translatable="yes">test</property>
-        <property name="subtitle" translatable="yes">time</property>
+        <property name="title" translatable="yes">Dashboard</property>
+        <property name="subtitle" translatable="yes">Home</property>
         <property name="spacing">10</property>
         <child>
           <object class="GtkButton">
@@ -73,11 +73,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
-            <property name="label" translatable="yes">button</property>
+          <object class="GtkButton" id="btn_config">
+            <property name="label">gtk-preferences</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
+            <property name="use-stock">True</property>
+            <property name="always-show-image">True</property>
           </object>
           <packing>
             <property name="pack-type">end</property>
@@ -86,5 +88,5 @@
         </child>
       </object>
     </child>
-  </object>
+  </object>  
 </interface>
