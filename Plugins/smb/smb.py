@@ -1,1 +1,8 @@
-print("smb loaded")
+import gi
+
+gi.require_version("Gtk", "3.0")
+
+from gi.repository import Gtk
+
+def run(builder : Gtk.Builder):
+    print("smb loaded")

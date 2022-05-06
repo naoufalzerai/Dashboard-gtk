@@ -7,7 +7,7 @@ class Config:
         return self.installed_plugin
 
     def load_installed_plugins(self):
-        self.installed_plugin = ["smb", "ssh"]
+        self.installed_plugin = ["smb", "ssh", "budget"]
 
     def load_plugins_from_repo(self):
         return None

@@ -17,7 +17,6 @@ class Signal:
 
         window_config.connect("response", lambda d: Signal.on_window_config_click(d))
         window_config.connect("close", lambda d: Signal.on_window_config_click(d))
-
         window_config.run()
 
     def on_window_config_click(window_config: Gtk.Dialog):
