@@ -6,15 +6,12 @@ gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 
-def on_main_stack_change(sub_title : Gtk.HeaderBar,stack: Gtk.Stack,selected):
-    title = stack.child_get_property(stack.get_visible_child(),'title')
-    sub_title.set_subtitle(title)
 
 def init_stack(stack: Gtk.Stack, config: list, builder: Gtk.Builder):
     sub_title = builder.get_object("main_header_bar")
     main_stack = builder.get_object("main_stack")
     main_panned = builder.get_object("main_panned")
-    callback = lambda stack,param: on_main_stack_change(sub_title,stack,param)
+    callback = lambda stack,param: Signal.on_main_stack_change(sub_title,stack,param)
     main_stack.connect("notify::visible-child",callback)
 
     for page in config:
@@ -28,3 +25,8 @@ def init_stack(stack: Gtk.Stack, config: list, builder: Gtk.Builder):
         name = "label%s" % page
 
         stack.add_titled(window, name,page.capitalize())
+
+class Signal:
+    def on_main_stack_change(sub_title: Gtk.HeaderBar, stack: Gtk.Stack, selected):
+        title = stack.child_get_property(stack.get_visible_child(), 'title')
+        sub_title.set_subtitle(title)
