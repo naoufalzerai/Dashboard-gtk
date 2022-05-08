@@ -1,48 +1,93 @@
 import gi
+from types import SimpleNamespace
 
 gi.require_version("Gtk", "3.0")
 
-from gi.repository import Gtk,GObject
+from gi.repository import Gtk, GObject
 
 budget_product_type = [
-    ("Beverages",),
-    ("Bread/Bakery",),
-    ("Canned/Jarred Goods ",),
-    ("Dairy",),
-    ("Dry/Baking Goods",),
-    ("Frozen Foods",),
-    ("Meat",),
-    ("Produce",),
-    ("Cleaners",),
-    ("Paper Goods",),
-    ("Personal Care ",),
-    ("Electronic",),
-    ("Subscriptions",),
-    ("Other",),
+    (1, "Beverages"),
+    (1, "Bread/Bakery"),
+    (1, "Canned/Jarred Goods "),
+    (1, "Dairy"),
+    (1, "Dry/Baking Goods"),
+    (1, "Frozen Foods"),
+    (1, "Meat"),
+    (1, "Produce"),
+    (1, "Cleaners"),
+    (1, "Paper Goods"),
+    (1, "Personal Care "),
+    (1, "Electronic"),
+    (1, "Subscriptions"),
+    (1, "Other"),
 ]
 
-budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_STRING,))
+budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 
 
 def run(builder: Gtk.Builder):
-    View.load_product_type_list(builder,budget_product_type)
+    View.load_product_type_list(builder, budget_product_type)
     print("budget loaded")
 
 
 class View:
-    def load_product_type_list(builder: Gtk.Builder,items):
+    def load_product_type_list(builder: Gtk.Builder, items):
         budget_product_type_tv = builder.get_object("tv_product_type")
         budget_product_type_add = builder.get_object("budget_product_type_add")
+        budget_product_type_save = builder.get_object("budget_product_type_save")
+        budget_product_type_delete = builder.get_object("budget_product_type_delete")
+
         for product_type in items:
             budget_product_type_list_store.append(list(product_type))
 
         budget_product_type_tv.set_model(budget_product_type_list_store)
-        rendererText = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn("Name", rendererText, text=0)
-        budget_product_type_tv.append_column(column)
-        budget_product_type_add.connect("pressed",lambda _:Signal.on_budget_product_type_add_clicked(builder))
+        rendererID = Gtk.CellRendererText()
+        columnID = Gtk.TreeViewColumn("#", rendererID, text=0)
+        budget_product_type_tv.append_column(columnID)
+
+        budget_product_type_tv.set_model(budget_product_type_list_store)
+        rendererName = Gtk.CellRendererText()
+        columnName = Gtk.TreeViewColumn("Name", rendererName, text=1)
+
+        budget_product_type_tv.append_column(columnName)
+        budget_product_type_add.connect("pressed", lambda _: Signal.on_budget_product_type_add_clicked(builder))
+
+        on_budget_product_type_save_clicked = lambda tree: Signal.on_budget_product_type_save_clicked(builder)
+        budget_product_type_save.connect("pressed", on_budget_product_type_save_clicked)
+
+        on_budget_product_type_delete_clicked = lambda tree: Signal.on_budget_product_type_delete_clicked(builder)
+        budget_product_type_delete.connect("pressed", on_budget_product_type_delete_clicked)
+
+        on_tv_product_type_select_cursor_row = lambda tree: Signal.on_tv_product_type_select_cursor_row(tree, builder)
+        budget_product_type_tv.connect("cursor-changed", on_tv_product_type_select_cursor_row)
 
 
 class Signal:
     def on_budget_product_type_add_clicked(builder: Gtk.Builder):
-        budget_product_type_list_store.append(("test",))
+        budget_product_type_name_input = builder.get_object("budget_product_type_name_input")
+        to_insert = SimpleNamespace(
+            Name=budget_product_type_name_input.get_property("text")
+        )
+        budget_product_type_list_store.append((1, to_insert.Name))
+
+    def on_tv_product_type_select_cursor_row(tree, builder: Gtk.Builder):
+        model, iter = tree.get_selection().get_selected()
+        if iter is not None:
+            value = model.get_value(iter, 1)
+            budget_product_type_name_input = builder.get_object("budget_product_type_name_input")
+            budget_product_type_name_input.set_property("text", value)
+            print(value)
+
+    def on_budget_product_type_save_clicked(builder: Gtk.Builder):
+        tree = builder.get_object("tv_product_type")
+        model, iter = tree.get_selection().get_selected()
+        budget_product_type_name_input = builder.get_object("budget_product_type_name_input")
+        to_edit = SimpleNamespace(
+            Name=budget_product_type_name_input.get_property("text")
+        )
+        model.set(iter, 1, to_edit.Name)
+
+    def on_budget_product_type_delete_clicked(builder: Gtk.Builder):
+        tree = builder.get_object("tv_product_type")
+        model, iter = tree.get_selection().get_selected()
+        model.remove(iter)

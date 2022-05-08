@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.38.2 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkBox" id="budget">
     <property name="visible">True</property>
     <property name="can-focus">True</property>
@@ -173,7 +173,7 @@
           </object>
           <packing>
             <property name="name">budget_factures</property>
-            <property name="title" translatable="yes">Factures</property>
+            <property name="title" translatable="yes">Invoice</property>
           </packing>
         </child>
         <child>
@@ -346,7 +346,7 @@
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="row-homogeneous">True</property>
+                <property name="column-spacing">10</property>
                 <property name="column-homogeneous">True</property>
                 <child>
                   <!-- n-columns=2 n-rows=3 -->
@@ -370,11 +370,12 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry">
+                      <object class="GtkEntry" id="budget_product_type_name_input">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
+                        <property name="show-emoji-icon">True</property>
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
