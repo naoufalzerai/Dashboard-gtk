@@ -1,37 +1,30 @@
 import gi
 from types import SimpleNamespace
-
+from Plugins.budget.Entities import ProductType
+from DAL.UOW import UOW
 gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk, GObject
 
-budget_product_type = [
-    (1, "Beverages"),
-    (1, "Bread/Bakery"),
-    (1, "Canned/Jarred Goods "),
-    (1, "Dairy"),
-    (1, "Dry/Baking Goods"),
-    (1, "Frozen Foods"),
-    (1, "Meat"),
-    (1, "Produce"),
-    (1, "Cleaners"),
-    (1, "Paper Goods"),
-    (1, "Personal Care "),
-    (1, "Electronic"),
-    (1, "Subscriptions"),
-    (1, "Other"),
-]
+budget_product_type = []
 
 budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 
 
 def run(builder: Gtk.Builder):
+    UOW.db.create_tables([ProductType.ProductType])
     View.load_product_type_list(builder, budget_product_type)
     print("budget loaded")
 
 
 class View:
     def load_product_type_list(builder: Gtk.Builder, items):
+
+
+        lst = list(ProductType.ProductType.select())
+        for item in lst :
+            budget_product_type_list_store.append((item.id,item.name))
+
         budget_product_type_tv = builder.get_object("tv_product_type")
         budget_product_type_add = builder.get_object("budget_product_type_add")
         budget_product_type_save = builder.get_object("budget_product_type_save")
@@ -69,6 +62,7 @@ class Signal:
             Name=budget_product_type_name_input.get_property("text")
         )
         budget_product_type_list_store.append((1, to_insert.Name))
+        ProductType.ProductType.insert(name=to_insert.Name).execute()
 
     def on_tv_product_type_select_cursor_row(tree, builder: Gtk.Builder):
         model, iter = tree.get_selection().get_selected()

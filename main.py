@@ -1,7 +1,10 @@
 import sys
+
+from DAL.UOW import UOW
 from Service.Config import Config
 from Components import Stack as st ,Config as cfg
 import gi
+
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -10,8 +13,11 @@ MAIN_STACK= "main_stack"
 MAIN_WINDOW ="main"
 
 class App(Gtk.Application):
+
     def __init__(self, config=[], *args, **kwargs):
+        t = UOW.db
         super().__init__(*args, application_id="com.shellfox.seettings", **kwargs)
+
         self.config = config
         self.window = None
 

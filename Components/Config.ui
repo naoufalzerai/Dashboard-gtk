@@ -4,6 +4,7 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkDialog" id="window_config">
     <property name="can-focus">False</property>
+    <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="default-width">600</property>
     <property name="default-height">300</property>
