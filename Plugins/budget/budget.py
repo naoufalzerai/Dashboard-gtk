@@ -1,7 +1,8 @@
 import gi
 from types import SimpleNamespace
-from Plugins.budget.Entities import ProductType
+from Plugins.budget.Entities.Model import ProductType
 from DAL.UOW import UOW
+
 gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk, GObject
@@ -12,7 +13,7 @@ budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TY
 
 
 def run(builder: Gtk.Builder):
-    UOW.db.create_tables([ProductType.ProductType])
+    UOW.db.create_tables([ProductType])
     View.load_product_type_list(builder, budget_product_type)
     print("budget loaded")
 
@@ -20,12 +21,11 @@ def run(builder: Gtk.Builder):
 class View:
     def load_product_type_list(builder: Gtk.Builder, items):
 
+        lst = list(ProductType.select())
+        for item in lst:
+            budget_product_type_list_store.append((item.id, item.name))
 
-        lst = list(ProductType.ProductType.select())
-        for item in lst :
-            budget_product_type_list_store.append((item.id,item.name))
-
-        budget_product_type_tv = builder.get_object("tv_product_type")
+        budget_product_type_tv = builder.get_object("tv_budget_product_type")
         budget_product_type_add = builder.get_object("budget_product_type_add")
         budget_product_type_save = builder.get_object("budget_product_type_save")
         budget_product_type_delete = builder.get_object("budget_product_type_delete")
@@ -61,8 +61,8 @@ class Signal:
         to_insert = SimpleNamespace(
             Name=budget_product_type_name_input.get_property("text")
         )
-        budget_product_type_list_store.append((1, to_insert.Name))
-        ProductType.ProductType.insert(name=to_insert.Name).execute()
+        id = ProductType.insert(name=to_insert.Name).execute()
+        budget_product_type_list_store.append((id, to_insert.Name))
 
     def on_tv_product_type_select_cursor_row(tree, builder: Gtk.Builder):
         model, iter = tree.get_selection().get_selected()
@@ -70,18 +70,20 @@ class Signal:
             value = model.get_value(iter, 1)
             budget_product_type_name_input = builder.get_object("budget_product_type_name_input")
             budget_product_type_name_input.set_property("text", value)
-            print(value)
 
     def on_budget_product_type_save_clicked(builder: Gtk.Builder):
         tree = builder.get_object("tv_product_type")
         model, iter = tree.get_selection().get_selected()
         budget_product_type_name_input = builder.get_object("budget_product_type_name_input")
         to_edit = SimpleNamespace(
+            Id=model.get_value(iter, 0),
             Name=budget_product_type_name_input.get_property("text")
         )
         model.set(iter, 1, to_edit.Name)
+        ProductType.update(name=to_edit.Name).where(ProductType.id == to_edit.Id).execute()
 
     def on_budget_product_type_delete_clicked(builder: Gtk.Builder):
         tree = builder.get_object("tv_product_type")
         model, iter = tree.get_selection().get_selected()
+        ProductType.delete().where(ProductType.id == model.get_value(iter, 0)).execute()
         model.remove(iter)
