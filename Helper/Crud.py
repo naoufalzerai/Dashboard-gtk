@@ -100,7 +100,9 @@ def peewee_types_to_gtk_column(ptype):
     return {
         AutoField: (Gtk.CellRendererText(), 'input'),
         TextField: (Gtk.CellRendererText(), 'input'),
-        CharField: (Gtk.CellRendererText(), 'input')
+        CharField: (Gtk.CellRendererText(), 'input'),
+        IntegerField:(Gtk.CellRendererText(), 'input'),
+        ForeignKeyField:(Gtk.CellRendererText(), 'input'),
     }[ptype]
 
 
