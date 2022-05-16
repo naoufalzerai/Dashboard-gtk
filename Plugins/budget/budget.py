@@ -10,21 +10,23 @@ from gi.repository import Gtk, GObject
 
 budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 budget_store_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
-budget_product_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
+budget_product_store = Gtk.ListStore.new((GObject.TYPE_INT,GObject.TYPE_INT, GObject.TYPE_STRING,GObject.TYPE_STRING,GObject.TYPE_INT))
 
 def run(builder: Gtk.Builder):
     UOW.db.create_tables([ProductType, Store, Product])
     View.load_product(builder)
     View.load_product_type_list(builder)
     View.load_store(builder)
+
+    # Product.insert(name='test',inventory=12,type=ProductType.get_by_id(1)).execute()
     print("budget loaded")
 
 
 class View:
     def load_product(builder):
         tv = builder.get_object("tv_budget_product")
-        Crud.load(Product,budget_product_store,tv)
-        pass
+        Crud.load(Product,budget_product_store,tv,builder,budget_product_type_input=ProductType)
+        tv.connect("cursor-changed", lambda tree: Signal.on_budget_product_select_cursor(tree, builder))
 
     def load_store(builder: Gtk.Builder):
         budget_store_tv = builder.get_object("tv_budget_store")
@@ -80,3 +82,7 @@ class Signal:
 
     def on_budget_product_type_delete_clicked(tv: Gtk.TreeView):
         Crud.remove(tv, ProductType)
+
+    # product
+    def on_budget_product_select_cursor(tree,builder):
+        Crud.select(Product,tree,builder,'budget_product')

@@ -53,13 +53,14 @@ def update(
             else:
                 setattr(temp,field[0],selected.get_value(iter, 0))
     temp.save()
-    pass
 
 
 def load(
         model,
         store: Gtk.ListStore,
-        tv: Gtk.TreeView
+        tv: Gtk.TreeView,
+        builder :Gtk.Builder = None,
+        **kwargs
 ):
     # Load data into ListStore
     lst = list(model.select())
@@ -68,7 +69,23 @@ def load(
     for item in lst:
         store.append(peewee_object_to_list(fields, item))
 
-    # Create TreeView
+    # Load fk
+    for key,val in kwargs.items():
+        combobox = builder.get_object(key)
+        temp_cmb = val.select().execute()
+        model = Gtk.ListStore(str,int)
+
+        for row in temp_cmb:
+            model.append([getattr(row,'name'),getattr(row,'id')])
+
+        combobox.set_model(model)
+        renderer = Gtk.CellRendererText()
+        combobox.pack_start(renderer, True)
+        combobox.add_attribute(renderer, "text", 0)
+        combobox.set_active(0)
+
+
+        # Create TreeView
     tv.set_model(store)
 
     # Create renderers and columns
@@ -90,9 +107,16 @@ def select(
             value = selected.get_value(iter, i)
             if field[1] != AutoField:
                 input = builder.get_object(f"{prefix}_{field[0]}_{field[2][1]}")
-                input.set_property("text", value)
-
-    pass
+                if input is not None:
+                    if field[1].__name__ == 'ForeignKeyField':
+                        # TODO set active
+                        input.set_active_id(value)
+                    else:
+                        input.set_property("text", str(value))
+                else:
+                    pass
+            else:
+                pass
 
 
 # TODO
@@ -119,5 +143,9 @@ def peewee_object_to_list(
 ):
     temp = list()
     for field in fields:
-        temp.append(getattr(model, field[0]))
+        if field[1].__name__ == "ForeignKeyField" and not field[0].endswith("_id"):
+            fk = getattr(model, field[0])
+            temp.append(getattr(fk,"name"))
+        else:
+            temp.append(getattr(model, field[0]))
     return temp

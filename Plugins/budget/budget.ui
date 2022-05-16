@@ -297,26 +297,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBox" id="budget_product_type_input">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">start</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
-                        <property name="label" translatable="yes">Quantity</property>
+                        <property name="label" translatable="yes">Inventory</property>
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
@@ -324,7 +311,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="budget_product_qte_input">
+                      <object class="GtkEntry" id="budget_product_inventory_input">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="margin-start">10</property>
@@ -335,6 +322,19 @@
                       <packing>
                         <property name="left-attach">1</property>
                         <property name="top-attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="budget_product_type_input">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">1</property>
                       </packing>
                     </child>
                   </object>
