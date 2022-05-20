@@ -25,8 +25,14 @@ def run(builder: Gtk.Builder):
 class View:
     def load_product(builder):
         tv = builder.get_object("tv_budget_product")
-        Crud.load(Product,budget_product_store,tv,builder,budget_product_type_input=ProductType)
+        budget_product_save = builder.get_object("budget_product_save")
+        budget_product_tv = builder.get_object("tv_product_store")
+        budget_product_add = builder.get_object("budget_product_add")
+
+        Crud.load(Product,budget_product_store,tv,builder,budget_product_type_combo=ProductType)
         tv.connect("cursor-changed", lambda tree: Signal.on_budget_product_select_cursor(tree, builder))
+        budget_product_save.connect("pressed", lambda _: Signal.on_budget_product_save_clicked(builder, budget_product_tv))
+        budget_product_add.connect("pressed", lambda _: Signal.on_budget_product_add_clicked(builder))
 
     def load_store(builder: Gtk.Builder):
         budget_store_tv = builder.get_object("tv_budget_store")
@@ -86,3 +92,9 @@ class Signal:
     # product
     def on_budget_product_select_cursor(tree,builder):
         Crud.select(Product,tree,builder,'budget_product')
+    # TODO
+    def on_budget_product_save_clicked(builder, tv):
+        Crud.update(Product, builder, tv, 'budget_product')
+
+    def on_budget_product_add_clicked(builder: Gtk.Builder):
+        Crud.add(Product, budget_product_store, builder, 'budget_product')
