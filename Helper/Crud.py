@@ -46,7 +46,7 @@ def remove(
 def update(
         model,
         builder: Gtk.Builder,
-        tv:Gtk.TreeView,
+        tv: Gtk.TreeView,
         prefix: string
 ):
     _, fields = get_attrs(model)
@@ -54,14 +54,25 @@ def update(
 
     selected, iter = tv.get_selection().get_selected()
 
-    if iter is not None:
-        for i, field in enumerate(fields):
-            if field[1] != AutoField:
-                input = builder.get_object(f"{prefix}_{field[0]}_{field[2][1]}").get_property("text")
-                setattr(temp, field[0], input)
-                selected.set(iter, i, input)
-            else:
-                setattr(temp,field[0],selected.get_value(iter, 0))
+    for i, field in enumerate(fields):
+        if field[1] != AutoField:
+            input = builder.get_object(f"{prefix}_{field[0]}_{field[2][1]}")
+            if input is not None:
+                if type(input) == Gtk.ComboBox:
+                    id, val = combobox_get_selected(input)
+                    setattr(temp, f"{field[0]}_id", id)
+                    selected.set(iter, i, val)
+
+                else:
+                    if field[1].field_type == 'INT':
+                        setattr(temp, field[0], int(input.get_property("text")))
+                        selected.set(iter, i, int(input.get_property("text")))
+                    else:
+                        setattr(temp, field[0], input.get_property("text"))
+                        selected.set(iter, i, input.get_property("text"))
+        else:
+            setattr(temp, field[0], selected.get_value(iter, 0))
+
     temp.save()
 
 
@@ -77,7 +88,11 @@ def load(
     _, fields = get_attrs(model)
 
     for item in lst:
-        store.append(peewee_object_to_list(fields, item))
+        try:
+            store.append(peewee_object_to_list(fields, item))
+        except Exception as e:
+            print(e)
+
 
     # Load fk
     for key,val in kwargs.items():
@@ -155,7 +170,7 @@ def peewee_types_to_gtk_column(ptype):
 
 def get_attrs(klass):
     attrs = inspect.getmembers(klass)
-    members = [a for a in attrs if not (a[0].startswith('__') and a[0].endswith('__'))]
+    members = [a for a in attrs if not (a[0].startswith('__') and a[0].endswith('__')) and not (a[0].endswith('_id') and type(a[1]) == ForeignKeyField)]
     fields = [(a[0], type(a[1]), peewee_types_to_gtk_column(type(a[1]))) for a in members if isinstance(a[1], Field)]
     return members, fields
 
