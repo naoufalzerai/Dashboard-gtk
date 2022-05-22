@@ -11,12 +11,16 @@ from gi.repository import Gtk, GObject
 budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 budget_store_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 budget_product_store = Gtk.ListStore.new((GObject.TYPE_INT,GObject.TYPE_INT, GObject.TYPE_STRING,GObject.TYPE_STRING))
+budget_invoice_store = Gtk.ListStore.new((GObject.TYPE_INT,GObject.TYPE_STRING,GObject.TYPE_FLOAT))
+
 
 def run(builder: Gtk.Builder):
-    UOW.db.create_tables([ProductType, Store, Product])
+    UOW.db.create_tables([ProductType, Store, Product, Invoice, InvoiceProducts])
+    View.load_invoice(builder)
     View.load_product(builder)
     View.load_product_type_list(builder)
     View.load_store(builder)
+
     # Product.insert(name='test',inventory=12,type=ProductType.get_by_id(1)).execute()
     print("budget loaded")
 
@@ -60,7 +64,9 @@ class View:
         budget_product_type_delete.connect("pressed", lambda _: Signal.on_budget_product_type_delete_clicked(budget_product_type_tv))
         budget_product_type_tv.connect("cursor-changed", lambda tree: Signal.on_tv_product_type_select_cursor_row(tree, builder))
 
-
+    def load_invoice(builder: Gtk.Builder):
+        tv_budget_incoice = builder.get_object('tv_budget_incoice')
+        Crud.load(Invoice,budget_invoice_store,tv_budget_incoice,builder,('date'),budget_invoice_store_combo=Store)
 
 class Signal:
     #  Store

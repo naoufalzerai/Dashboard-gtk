@@ -81,6 +81,7 @@ def load(
         store: Gtk.ListStore,
         tv: Gtk.TreeView,
         builder :Gtk.Builder = None,
+        to_hide:list = (),
         **kwargs
 ):
     # Load data into ListStore
@@ -89,7 +90,7 @@ def load(
 
     for item in lst:
         try:
-            store.append(peewee_object_to_list(fields, item))
+            store.append(peewee_object_to_list(fields, item,to_hide))
         except Exception as e:
             print(e)
 
@@ -115,9 +116,12 @@ def load(
     tv.set_model(store)
 
     # Create renderers and columns
-    for i, field in enumerate(fields):
-        col = Gtk.TreeViewColumn(field[0], field[2][0], text=i)
-        tv.append_column(col)
+    i=0
+    for field in fields:
+        if field[0] not in to_hide:
+            col = Gtk.TreeViewColumn(field[0], field[2][0], text=i)
+            tv.append_column(col)
+            i+=1
 
 
 def select(
@@ -164,7 +168,9 @@ def peewee_types_to_gtk_column(ptype):
         TextField: (Gtk.CellRendererText(), 'input'),
         CharField: (Gtk.CellRendererText(), 'input'),
         IntegerField:(Gtk.CellRendererText(), 'input'),
+        FloatField:(Gtk.CellRendererText(), 'input'),
         ForeignKeyField:(Gtk.CellRendererText(), 'combo'),
+        DateTimeField: (Gtk.CellRendererText(), 'input'),
     }[ptype]
 
 
@@ -177,14 +183,14 @@ def get_attrs(klass):
 
 def peewee_object_to_list(
         fields: list,
-        model: BaseModel
+        model: BaseModel,
+        to_hide: list=()
 ):
     temp = list()
     for field in fields:
-        if field[1].__name__ == "ForeignKeyField" and not field[0].endswith("_id"):
+        if field[1].__name__ == "ForeignKeyField" and not field[0].endswith("_id") and field[0] not in to_hide:
             fk = getattr(model, field[0])
             temp.append(getattr(fk,"name"))
-        else:
-
+        elif field[0] not in to_hide:
             temp.append(getattr(model, field[0]))
     return temp

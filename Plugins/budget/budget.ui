@@ -60,30 +60,14 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="budget_product_type_name_input3">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="margin-start">10</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
-                        <property name="secondary-icon-name">face-smile-symbolic</property>
-                        <property name="secondary-icon-tooltip-text" translatable="yes">Insert Emoji</property>
-                        <property name="secondary-icon-tooltip-markup" translatable="yes">Insert Emoji</property>
-                        <property name="show-emoji-icon">True</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry">
+                      <object class="GtkEntry" id="budget_invoice_total_input">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="margin-left">10</property>
                         <property name="margin-start">10</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
+                        <property name="input-purpose">number</property>
                       </object>
                       <packing>
                         <property name="left-attach">1</property>
@@ -102,6 +86,20 @@
                       <packing>
                         <property name="left-attach">0</property>
                         <property name="top-attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="budget_invoice_store_combo">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-left">10</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
                       </packing>
                     </child>
                   </object>
@@ -184,7 +182,7 @@
                 <property name="margin-start">10</property>
                 <property name="margin-end">10</property>
                 <child>
-                  <object class="GtkCalendar">
+                  <object class="GtkCalendar" id="budget_invoice_total_date">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="margin-start">10</property>
@@ -204,7 +202,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkTreeView">
+                      <object class="GtkTreeView" id="tv_budget_incoice">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="margin-right">10</property>
@@ -763,9 +761,6 @@
             <property name="title" translatable="yes">Stores</property>
             <property name="position">3</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
       </object>
       <packing>
