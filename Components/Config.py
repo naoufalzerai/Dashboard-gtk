@@ -1,8 +1,12 @@
 import gi
+
+from Helper import Dashboard_GTK
+
 gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 
+GLADE_FILE = "./Components/Config.ui"
 
 def init_config(builder: Gtk.Builder):
     btn_config = builder.get_object("btn_config")
@@ -12,8 +16,5 @@ def init_config(builder: Gtk.Builder):
 
 class Signal:
     def on_btn_config_click(builder: Gtk.Builder):
-
-        builder.add_from_file(f"./Components/Config.ui")
-        window_config = builder.get_object("window_config")
-        result = window_config.run()
-        window_config.hide()
+        res = Dashboard_GTK.build_modal(builder,GLADE_FILE,'window_config')
+        print(res)

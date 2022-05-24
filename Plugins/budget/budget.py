@@ -1,13 +1,15 @@
 import gi
-from types import SimpleNamespace
+
+from Helper import Dashboard_GTK
 from Plugins.budget.Entities.Model import ProductType, Store, Product, InvoiceProducts, Invoice
 from DAL.UOW import UOW
 import Helper.Crud as Crud
 
 gi.require_version("Gtk", "3.0")
-
 from gi.repository import Gtk, GObject
 
+
+GLADE_FILE = './Plugins/budget/budget.ui'
 budget_product_type_list_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 budget_store_store = Gtk.ListStore.new((GObject.TYPE_INT, GObject.TYPE_STRING,))
 budget_product_store = Gtk.ListStore.new((GObject.TYPE_INT,GObject.TYPE_INT, GObject.TYPE_STRING,GObject.TYPE_STRING))
@@ -66,6 +68,9 @@ class View:
 
     def load_invoice(builder: Gtk.Builder):
         tv_budget_incoice = builder.get_object('tv_budget_incoice')
+        budget_invoice_details_button = builder.get_object("budget_invoice_details_button")
+
+        budget_invoice_details_button.connect("pressed",lambda _:Dashboard_GTK.build_modal(builder,GLADE_FILE,'budget_invoice_detail_pop'))
         Crud.load(Invoice,budget_invoice_store,tv_budget_incoice,builder,('date'),budget_invoice_store_combo=Store)
 
 class Signal:
