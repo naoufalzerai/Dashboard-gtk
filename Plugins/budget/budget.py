@@ -67,11 +67,12 @@ class View:
         budget_product_type_tv.connect("cursor-changed", lambda tree: Signal.on_tv_product_type_select_cursor_row(tree, builder))
 
     def load_invoice(builder: Gtk.Builder):
-        tv_budget_incoice = builder.get_object('tv_budget_incoice')
+        tv_budget_invoice = builder.get_object('tv_budget_invoice')
         budget_invoice_details_button = builder.get_object("budget_invoice_details_button")
 
         budget_invoice_details_button.connect("pressed",lambda _:Dashboard_GTK.build_modal(builder,GLADE_FILE,'budget_invoice_detail_pop'))
-        Crud.load(Invoice,budget_invoice_store,tv_budget_incoice,builder,('date'),budget_invoice_store_combo=Store)
+        Crud.load(Invoice,budget_invoice_store,tv_budget_invoice,builder,('date'),budget_invoice_store_combo=Store)
+        tv_budget_invoice.connect("cursor-changed", lambda tree: Signal.on_tv_budget_invoice_select_cursor_row(tree, builder))
 
 class Signal:
     #  Store
@@ -94,6 +95,7 @@ class Signal:
     def on_tv_product_type_select_cursor_row(tree, builder: Gtk.Builder):
         Crud.select(ProductType, tree, builder, 'budget_product_type')
 
+
     def on_budget_product_type_save_clicked(builder, tv):
         Crud.update(ProductType, builder, tv, 'budget_product_type')
 
@@ -113,3 +115,8 @@ class Signal:
 
     def on_budget_product_delete_clicked(tv: Gtk.TreeView):
         Crud.remove(tv, Product)
+
+    # Invoice
+    def on_tv_budget_invoice_select_cursor_row(tree, builder: Gtk.Builder):
+        # TODO Problem when Date is hidden ;)
+        Crud.select(Invoice, tree, builder, 'budget_invoice')

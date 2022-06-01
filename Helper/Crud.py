@@ -120,6 +120,7 @@ def load(
     for field in fields:
         if field[0] not in to_hide:
             col = Gtk.TreeViewColumn(field[0], field[2][0], text=i)
+            col.set_sort_column_id(i)
             tv.append_column(col)
             i+=1
 
