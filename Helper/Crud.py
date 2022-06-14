@@ -1,4 +1,5 @@
 import string
+from datetime import datetime
 
 from DAL.UOW import BaseModel
 from gi.repository import Gtk
@@ -10,7 +11,8 @@ def add(
         model,
         store: Gtk.ListStore,
         builder: Gtk.Builder,
-        prefix: string
+        prefix: string,
+        to_hide:list = ()
 ):
     temp = model()
     _, fields = get_attrs(model)
@@ -22,16 +24,20 @@ def add(
                 if type(input) == Gtk.ComboBox:
                     id, val = combobox_get_selected(input)
                     setattr(temp, f"{field[0]}_id", id)
+                elif field[1].field_type == 'DATETIME':
+                    date = input.get_date()
+                    setattr(temp, field[0], datetime(date[0], date[1], date[2]))
+                elif field[1].field_type == 'INT':
+                    setattr(temp, field[0], int(input.get_property("text")))
                 else:
-                    if field[1].field_type == 'INT':
-                        setattr(temp, field[0], int(input.get_property("text")))
-                    else:
-                        setattr(temp, field[0], input.get_property("text"))
+                    setattr(temp, field[0], input.get_property("text"))
             else:
                 pass
 
     temp.save()
-    store.append(peewee_object_to_list(fields, temp))
+    #TODO convert DOUBLE
+    to_append = peewee_object_to_list(fields, temp, to_hide)
+    store.append(to_append)
 
 
 def remove(
