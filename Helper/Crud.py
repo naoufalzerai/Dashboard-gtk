@@ -129,23 +129,22 @@ def select(
         model,
         tv: Gtk.TreeView,
         builder: Gtk.Builder,
-        prefix: string
+        prefix: string,
+        to_hide:list = (),
 ):
     selected, iter = tv.get_selection().get_selected()
-    _, fields = get_attrs(model)
+    _, fields = get_attrs(model,to_hide)
     if iter is not None:
         for i, field in enumerate(fields):
             value = selected.get_value(iter, i)
-            if field[1] != AutoField:
+            if field[1] != AutoField and field[0] not in to_hide:
                 input = builder.get_object(f"{prefix}_{field[0]}_{field[2][1]}")
                 if input is not None:
                     if type(input) == Gtk.ComboBox:
                         id, val = combobox_get_selected(input)
                         set_combobox(input,value=value)
-                    else:
+                    elif type(input) == Gtk.Entry:
                         input.set_property("text", str(value))
-                else:
-                    pass
             else:
                 pass
 
@@ -175,10 +174,10 @@ def peewee_types_to_gtk_column(ptype):
     }[ptype]
 
 
-def get_attrs(klass):
+def get_attrs(klass,to_hide:list=()):
     attrs = inspect.getmembers(klass)
     members = [a for a in attrs if not (a[0].startswith('__') and a[0].endswith('__')) and not (a[0].endswith('_id') and type(a[1]) == ForeignKeyField)]
-    fields = [(a[0], type(a[1]), peewee_types_to_gtk_column(type(a[1]))) for a in members if isinstance(a[1], Field)]
+    fields = [(a[0], type(a[1]), peewee_types_to_gtk_column(type(a[1]))) for a in members if isinstance(a[1], Field) and a[0] not in to_hide]
     return members, fields
 
 
