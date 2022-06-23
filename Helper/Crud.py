@@ -12,7 +12,7 @@ def add(
         store: Gtk.ListStore,
         builder: Gtk.Builder,
         prefix: string,
-        to_hide:list = ()
+        to_hide: list = ()
 ):
     temp = model()
     _, fields = get_attrs(model)
@@ -29,13 +29,14 @@ def add(
                     setattr(temp, field[0], datetime(date[0], date[1], date[2]))
                 elif field[1].field_type == 'INT':
                     setattr(temp, field[0], int(input.get_property("text")))
+                elif field[1].field_type == 'FLOAT':
+                    setattr(temp, field[0], float(input.get_property("text")))
                 else:
                     setattr(temp, field[0], input.get_property("text"))
             else:
                 pass
 
     temp.save()
-    #TODO convert DOUBLE
     to_append = peewee_object_to_list(fields, temp, to_hide)
     store.append(to_append)
 
@@ -53,13 +54,16 @@ def update(
         model,
         builder: Gtk.Builder,
         tv: Gtk.TreeView,
-        prefix: string
+        prefix: string,
+        to_hide: list = ()
 ):
     _, fields = get_attrs(model)
     temp = model()
 
     selected, iter = tv.get_selection().get_selected()
-
+    if iter is None:
+        return
+    iter_i = 0
     for i, field in enumerate(fields):
         if field[1] != AutoField:
             input = builder.get_object(f"{prefix}_{field[0]}_{field[2][1]}")
@@ -67,17 +71,24 @@ def update(
                 if type(input) == Gtk.ComboBox:
                     id, val = combobox_get_selected(input)
                     setattr(temp, f"{field[0]}_id", id)
-                    selected.set(iter, i, val)
-
+                    selected.set(iter, iter_i, val)
+                elif field[1].field_type == 'INT':
+                    setattr(temp, field[0], int(input.get_property("text")))
+                    selected.set(iter, iter_i, int(input.get_property("text")))
+                elif field[1].field_type == 'FLOAT':
+                    setattr(temp, field[0], float(input.get_property("text")))
+                    selected.set(iter, iter_i, float(input.get_property("text")))
+                elif field[1].field_type == 'DATETIME':
+                    date = input.get_date()
+                    setattr(temp, field[0], datetime(date[0], date[1], date[2]))
+                    iter_i -= 1
                 else:
-                    if field[1].field_type == 'INT':
-                        setattr(temp, field[0], int(input.get_property("text")))
-                        selected.set(iter, i, int(input.get_property("text")))
-                    else:
-                        setattr(temp, field[0], input.get_property("text"))
-                        selected.set(iter, i, input.get_property("text"))
+                    setattr(temp, field[0], input.get_property("text"))
+                    selected.set(iter, iter_i, input.get_property("text"))
+            iter_i += 1
         else:
             setattr(temp, field[0], selected.get_value(iter, 0))
+            iter_i += 1
 
     temp.save()
 
@@ -88,29 +99,37 @@ def load(
         tv: Gtk.TreeView,
         builder :Gtk.Builder = None,
         to_hide:list = (),
+        where:list=(True),
         **kwargs
 ):
     # Load data into ListStore
-    lst = list(model.select())
+    lst = list(model
+               .select()
+               .where(where)
+               )
     _, fields = get_attrs(model)
+
+    store.clear()
 
     for item in lst:
         try:
-            store.append(peewee_object_to_list(fields, item,to_hide))
+            s = peewee_object_to_list(fields, item,to_hide)
+            store.append(s)
         except Exception as e:
             print(e)
 
 
-    # Load fk
+    # Load fk combobox
     for key,val in kwargs.items():
         combobox = builder.get_object(key)
         temp_cmb = val.select().execute()
-        model = Gtk.ListStore(int,str)
+        modelCB = Gtk.ListStore(int,str)
 
+        Gtk.CellLayout.clear(combobox)
         for row in temp_cmb:
-            model.append([getattr(row,'id'),getattr(row,'name')])
+            modelCB.append([getattr(row,'id'),getattr(row,'name')])
 
-        combobox.set_model(model)
+        combobox.set_model(modelCB)
         combobox.props.id_column=0
         renderer = Gtk.CellRendererText()
         combobox.pack_start(renderer, True)
@@ -119,16 +138,20 @@ def load(
 
 
         # Create TreeView
+
     tv.set_model(store)
 
     # Create renderers and columns
-    i=0
+    # Remove last columns
+    for c in tv.get_columns():
+        tv.remove_column(c)
+    i = 0
     for field in fields:
         if field[0] not in to_hide:
             col = Gtk.TreeViewColumn(field[0], field[2][0], text=i)
             col.set_sort_column_id(i)
             tv.append_column(col)
-            i+=1
+            i += 1
 
 
 def select(
@@ -169,12 +192,18 @@ def set_combobox(combo,id = None,value=""):
 
 # TODO
 def peewee_types_to_gtk_column(ptype):
+    def float_renderer():
+        right = Gtk.CellRendererText()
+        # right.set_property('xalign', 1.0)
+        #right.set_property('editing',True)
+        return  right
+
     return {
         AutoField: (Gtk.CellRendererText(), 'input'),
         TextField: (Gtk.CellRendererText(), 'input'),
         CharField: (Gtk.CellRendererText(), 'input'),
         IntegerField:(Gtk.CellRendererText(), 'input'),
-        FloatField:(Gtk.CellRendererText(), 'input'),
+        FloatField:(float_renderer(), 'input'),
         ForeignKeyField:(Gtk.CellRendererText(), 'combo'),
         DateTimeField: (Gtk.CellRendererText(), 'input'),
     }[ptype]
